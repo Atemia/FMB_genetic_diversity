@@ -1,0 +1,168 @@
+---
+title: "Untitled"
+author: "Joseph"
+date: "9/25/2019"
+output: html_document
+---
+
+
+## Loading the libraries 
+
+
+```{r libraries, include=TRUE ,echo=TRUE}
+library("pophelper")
+library("ggplot2")
+library("gridExtra")
+library("gtable")
+library("label.switching")
+library("tidyr")
+library("devtools")
+
+```
+
+## Setting up working directory
+
+```{r results_directory, echo=FALSE}
+
+#setwd("/Users/ATEMIA/Desktop/Results_all_runs/Results")
+
+sfiles <- list.files(path=("/Volumes/OS/Structure_50K_100K_outputs/Pophelper_output/5X_structure/"), full.names = T )
+
+slist <- readQ(files=sfiles)
+
+```
+
+## Getting delta K
+
+Atleast two runs are required for dermination of delter K
+```{r evannoMethod, echo=TRUE}
+sr1 <- summariseQ(tabulateQ(slist))
+p <- evannoMethodStructure(data=sr1,exportplot=T,returnplot=T,returndata=F,basesize=20,width=300,height=300,
+                           units="mm",linesize=1.5, writetable=T)
+grid.arrange(p)
+
+```
+
+
+### plotQ()
+
+#### Colors
+```{r, echo=F}
+clist <- list(
+"standard_12"=c("#2121D9","#9999FF","#DF0101","#04B404","#FFFB23","#FF9326","#A945FF","#0089B2","#B26314","#610B5E","#FE2E9A","#BFF217"),
+"rich.colors"=pophelper:::getColours(13),"shiny"=c("#1D72F5","#DF0101","#77CE61","#FF9326","#A945FF","#0089B2","#FDF060","#FFA6B2","#BFF217","#60D5FD","#CC1577",
+                                                   "#F2B950","#7FB21D","#EC496F","#326397","#B26314","#027368","#A4A4A4","#610B5E"),
+"strong"=c("#11A4C8","#63C2C5","#1D4F9F","#0C516D","#2A2771","#396D35","#80C342","#725DA8","#B62025","#ED2224","#ED1943","#ED3995","#7E277C","#F7EC16","#F8941E",
+           "#8C2A1C","#808080"),
+"oceanfive"=c("#00A0B0", "#6A4A3C", "#CC333F", "#EB6841", "#EDC951"),
+"keeled"=c("#48B098", "#91CB62", "#FFEE3B", "#FB9013", "#FF3C28"),
+"vintage"=c("#400F13", "#027368", "#A3BF3F", "#F2B950", "#D93A2B"),
+"muted"=c("#46BDDD","#82DDCE","#F5F06A","#F5CC6A","#F57E6A"),
+"teal"=c("#CFF09E","#A8DBA8","#79BD9A","#3B8686","#0B486B"),
+"merry"=c("#5BC0EB","#FDE74C","#9BC53D","#E55934","#FA7921"),
+"funky"=c("#A6CEE3", "#3F8EAA", "#79C360", "#E52829", "#FDB762","#ED8F47","#9471B4"),
+"retro"=c("#01948E","#A9C4E2","#E23560","#01A7B3","#FDA963","#323665","#EC687D"),
+"cb_paired"=c("#A6CEE3","#1F78B4","#B2DF8A","#33A02C","#FB9A99","#E31A1C","#FDBF6F","#FF7F00","#CAB2D6","#6A3D9A","#FFFF99","#B15928"),
+"cb_set3"=c("#8DD3C7","#FFFFB3","#BEBADA","#FB8072","#80B1D3","#FDB462","#B3DE69","#FCCDE5","#D9D9D9","#BC80BD","#CCEBC5","#FFED6F"),
+"morris"=c("#4D94CC","#34648A","#8B658A","#9ACD32","#CC95CC","#9ACD32","#8B3A39","#CD6601","#CC5C5B","#8A4500"),
+"wong"=c("#000000","#E69F00","#56B4E9","#009E73","#F0E442","#006699","#D55E00","#CC79A7"),
+"krzywinski"=c("#006E82","#8214A0","#005AC8","#00A0FA","#FA78FA","#14D2DC","#AA0A3C","#FA7850","#0AB45A","#F0F032","#A0FA82","#FAE6BE"))
+```
+
+
+### Exporting plots from different runs
+```{r, echo=TRUE}
+
+k=1 # naming the different runs
+# depending on the k values you want printed out, the seq is specified
+for (i in seq(from=1, to =50)){
+# get a qlist
+list1 <- slist[(i)]
+
+# read some individual labels
+inds <- read.delim(("~/Desktop/226_lables.txt"),
+                   header=FALSE, stringsAsFactors=FALSE)
+
+# add labels as rownames to qlist
+rownames(list1[[1]]) <- inds$V1
+
+plotQ(alignK((list1)),returnplot=T,exportplot=T,quiet=T,basesize=20, showlegend=T,showindlab=T,
+            useindlab=T,showyaxis=T,panelspacer=0.5,sharedindlab=F,
+            indlabangle=90,indlabcol= "darkgreen", indlabsize = 9,sortind = "all",
+            legendkeysize=20,legendtextsize=20,legendmargin=c(4,4,4,0),legendrow=1,width=700,height=100,units="mm",
+            clustercol=clist$shiny,splab=paste0("K=",sapply(list1,ncol)),
+            showtitle=T,showsubtitle=F,titlelab=paste("A plot showing clustering of 226 Finger millet blast isolates"),
+            titlecol="#800020",titlehjust = 0.5,
+            subtitlelab=paste("226 isolates") ,subtitlecol="#800020")
+k <- k+1
+#grid.arrange(p1$plot[[1]])
+}
+```
+
+
+### Merging plots
+```{r, echo=T}
+#### Merging plots
+
+# get a qlist
+list2 <- slist[c(21:25)]
+
+# read some individual labels
+inds <- read.delim(("~/Desktop/226_lables.txt"),
+                   header=FALSE, stringsAsFactors=FALSE)
+
+# add labels as rownames to qlist
+rownames(list2[[1]]) <- inds$V1
+
+
+plotQ(mergeQ(alignK(list2)),useindlab=T,showlegend=T,showindlab=T,showyaxis=T, basesize=20,indlabsize = 6,
+               indlabcol="darkgreen", sortind="all",indlabangle=90, indlabvjust=1, indlabhjust=1,
+               showtitle = T, titlelab = "MERGED PLOT",titlecol = "#800020",showsubtitle = F, legendkeysize=20,
+               legendtextsize=20,legendmargin=c(4,4,4,0),legendrow=1,width=700,height=100,units="mm",
+               subtitlelab = "K = 2",titlehjust = 0.5, subtitlecol = "#800020",clustercol=clist$shiny)
+```
+
+#### Labelling and sorting
+```{r, echo=TRUE}
+k<-1
+for (i in seq(from=1, to=100, by=10 )){
+# get a qlist
+list1 <- slist[i]
+
+# read some individual labels
+inds <- read.delim(("~/Desktop/226_lables.txt"),
+                   header=FALSE, stringsAsFactors=FALSE)
+
+# add labels as rownames to qlist
+rownames(list1[[1]]) <- inds$V1
+
+
+plotQMultiline(alignK(list1),useindlab=T,showlegend=T,showindlab=T,showyaxis=T,
+               indlabcol="darkgreen", sortind="all",indlabangle=45, indlabvjust=1, indlabhjust=1,
+               showtitle = T, titlelab = "226 Isolates finger millet blast srtucture plots",titlecol = "#800020 ",
+               showsubtitle = F,subtitlelab = paste("K =",k) ,titlehjust = 0.5, subtitlecol = "#800020",
+               height=12, mar=c(0,0,0,0.5),clustercol=clist$shiny)
+k<-k+1
+}
+```
+
+### TESTING
+```{r}
+list1 <- slist[(54)]
+
+# read some individual labels
+inds <- read.delim(("~/Desktop/226_lables.txt"),
+                   header=FALSE, stringsAsFactors=FALSE)
+
+# add labels as rownames to qlist
+rownames(list1[[1]]) <- inds$V1
+
+plotQ(alignK((list1)),returnplot=T,exportplot=T,quiet=T,basesize=20, showlegend=T,showindlab=T,
+            useindlab=T,showyaxis=T,panelspacer=0.5,sharedindlab=F,
+            indlabangle=90,indlabcol= "darkgreen", indlabsize = 9,sortind = "all",
+            legendkeysize=20,legendtextsize=20,legendmargin=c(4,4,4,0),legendrow=1,width=700,height=100,units="mm",
+            clustercol=clist$shiny,splab=paste0("K=",sapply(list1,ncol)),
+            showtitle=T,showsubtitle=F,titlelab=paste("226 Isolates finger millet blast srtucture plots"),
+            titlecol="#800020",titlehjust = 0.5,
+            subtitlelab="" ,subtitlecol="#800020")
+```
