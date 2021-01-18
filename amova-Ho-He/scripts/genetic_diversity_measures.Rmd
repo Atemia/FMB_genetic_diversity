@@ -1,0 +1,31 @@
+---
+title: "genetic-diversity-measures"
+author: "Joseph"
+date: "18/01/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Hierfstat
+```{r, echo=TRUE}
+library(adegenet)
+library(hierfstat)
+
+pop_file <- read.delim("/Volumes/SPM-PC/Research/masters_research/pca-pcoa/PCA-PCoA-re/lables/sub_c_2_pop.txt", header = F) # load the file we extract populations from
+
+df <- read.delim("../data/", header = F) # read the data file
+unlabled_df <- select(df, -c(V1)) # exclude the first column (lables) so that we are able to convert the data to a matrix
+
+obj <- df2genind(unlabled_df, ploidy=1, type="PA") # creating a genind object from our data matrix
+
+pop(obj) <- paste(pop_file$V2) # setting populations on the dataset
+#nPop(obj) # confirming the number of populations in the dataset
+popNames(obj)
+
+indNames(obj) <- paste(df$V1) # adding isolate lables to our created genind object 
+
+X <- tab(obj, NA.method="mean") # relpacing NAs for PCA analysis
+```
